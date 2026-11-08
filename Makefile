@@ -5,7 +5,7 @@ CC 		= $(CROSS)gcc
 LD 		= $(CROSS)ld
 OBJDUMP = $(CROSS)objdump
 
-ASWFLAGS = -g
+ASFLAGS  = -g
 CFLAGS 	 = -g -ffreestanding -nostdlib -mcpu=cortex-a53 -O2
 LDFLAGS  = -T link.ld
 
