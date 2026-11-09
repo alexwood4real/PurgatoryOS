@@ -1,5 +1,9 @@
+#include "uart.h"
+
 void kernel_main(void) {
-    // UART isn't set up yet
-    // For now, if reached, boot stub worked
+    uart_init();
+    kprint("Hello kernel\n");
+
+    /* Spin, nothing else to do yet */
     while (1);
 }

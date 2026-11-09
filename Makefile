@@ -10,7 +10,7 @@ CFLAGS 	 = -g -ffreestanding -nostdlib -mcpu=cortex-a53 -O2
 LDFLAGS  = -T link.ld
 
 TARGET 	= kernel.elf
-OBJS 	= boot.o kernel.o
+OBJS 	= boot.o uart.o kernel.o
 
 all: $(TARGET)
 
