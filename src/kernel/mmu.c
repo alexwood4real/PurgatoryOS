@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include "kernel/mmu.h"
-#include "drivers/uart.h"
 
 /* Static Declarations */
 static void clean_cache_range(uint64_t, uint64_t);
