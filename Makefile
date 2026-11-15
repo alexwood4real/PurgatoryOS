@@ -7,7 +7,7 @@ OBJDUMP = $(CROSS)objdump
 
 ASFLAGS  = -g
 INCLUDES = -Iinclude
-CFLAGS 	 = -g -ffreestanding -nostdlib -mcpu=cortex-a53 -O2 $(INCLUDES)
+CFLAGS 	 = -g -ffreestanding -nostdlib -mcpu=cortex-a53 -O2 -mgeneral-regs-only $(INCLUDES)
 LDFLAGS  = -T src/link.ld
 
 C_SRCS  := $(shell find src -name '*.c' 2>/dev/null)

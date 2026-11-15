@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "kernel/mmu.h"
+#include "drivers/uart.h"
 
 /* Static Declarations */
 static void clean_cache_range(uint64_t, uint64_t);
@@ -32,14 +33,14 @@ void mmu_init()
      * thus valid table descriptor
      * hardware defreferences this address to get the L1 table
      */
-    l0_table[ 0 ] = (uint64_t) l1_table | DESC_VALID | DESC_TABLE;
+    l0_table[ 0 ] = (uint64_t)l1_table | DESC_VALID | DESC_TABLE;
 
     /* Build L1 Table:
      * L1[ 0 ] covers 0 GB to 1 GB and points at the device L2 table
      * L1[ 1 ] covers 1 GB to 2 GB and points at the kernel L2 table
      */
-    l1_table[ 0 ] = (uint64_t) l2_dev_table | DESC_VALID | DESC_TABLE;
-    l1_table[ 1 ] = (uint64_t) l2_dev_table | DESC_VALID | DESC_TABLE;
+    l1_table[ 0 ] = (uint64_t)l2_dev_table | DESC_VALID | DESC_TABLE;
+    l1_table[ 1 ] = (uint64_t)l2_table | DESC_VALID | DESC_TABLE;
 
     /* Build L2 Peripheral Table: 
      * 512 blocks of 2 MB cover 0x00000000 to 0x3FFFFFFF
@@ -56,12 +57,13 @@ void mmu_init()
         l2_dev_table[ i ] = pa | BLOCK_DEVICE;
         }
 
+
     /* Build the Kernel L2 Table: 
      * Maps 16 MB from 0x40000000, the base of RAM on QEMU virt
      */
     for( i = 0; i < 8; i++ )
         {
-        uint64_t pa = 0x40000000UL + (uint64_t)i * 0x20000000UL;
+        uint64_t pa = 0x40000000UL + (uint64_t)i * 0x200000UL;
         l2_table[ i ] = pa | BLOCK_NORMAL;
         }
 
