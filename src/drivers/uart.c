@@ -1,4 +1,4 @@
-#include "uart.h"
+#include "drivers/uart.h"
 
 /*
 * PL011's required initialization sequence:

@@ -19,7 +19,7 @@ _start:
     eret
 
 .el1_ready:
-    ldr     x0, =_stack_top /* Uses the assembler literal piil to lead a 64-bit address, emits a PC-relative load */
+    ldr     x0, =_stack_top  /* Uses the assembler literal piil to lead a 64-bit address, emits a PC-relative load */
     mov     sp, x0           /* Set the stack pointer. Allows C functions to safely push and pop */
 
     ldr     x1, =__bss_start /* Load the start of the BSS region. Defined in linker */

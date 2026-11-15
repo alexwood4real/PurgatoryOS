@@ -6,22 +6,31 @@ LD 		= $(CROSS)ld
 OBJDUMP = $(CROSS)objdump
 
 ASFLAGS  = -g
-CFLAGS 	 = -g -ffreestanding -nostdlib -mcpu=cortex-a53 -O2
-LDFLAGS  = -T link.ld
+INCLUDES = -Iinclude
+CFLAGS 	 = -g -ffreestanding -nostdlib -mcpu=cortex-a53 -O2 $(INCLUDES)
+LDFLAGS  = -T src/link.ld
 
-TARGET 	= kernel.elf
-OBJS 	= boot.o uart.o kernel.o
+C_SRCS  := $(shell find src -name '*.c' 2>/dev/null)
+S_SRCS  := $(shell find src -name '*.S' 2>/dev/null)
+
+C_OBJS  := $(patsubst %.c, build/%.o, $(C_SRCS))
+S_OBJS  := $(patsubst %.S, build/%.o, $(S_SRCS))
+OBJS    := $(C_OBJS) $(S_OBJS)
+
+TARGET  := kernel.elf
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS) link.ld
+$(TARGET): $(OBJS) src/link.ld
 	$(LD) $(LDFLAGS) -o $@ $(OBJS)
 
-%.o: %.S
-	$(AS) $(ASFLAGS) -o $@ $<
-
-%.o: %.c
+build/%.o: %.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+build/%.o: %.S
+	@mkdir -p $(dir $@)
+	$(AS) $(ASFLAGS) -o $@ $<
 
 run: $(TARGET)
 	qemu-system-aarch64 \
@@ -42,6 +51,6 @@ dump: $(TARGET)
 	$(OBJDUMP) -d $(TARGET)
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -rf build $(TARGET)
 
-.PHONY: all run gdp dump clean
+.PHONY: all run gdb dump clean
