@@ -1,0 +1,71 @@
+#include "kernel/timer.h"
+#include "kernel/gic.h"
+#include "drivers/uart.h"
+
+/* Statics */
+static volatile uint64_t tick_count = 0;
+static uint64_t reload_ticks = 0; /* saved so tick() can re-arm */
+
+void timer_init(uint32_t interval_ms)
+    {
+    /* 1. Read counter frequency */
+    uint64_t freq;
+    asm volatile("mrs %0, cntfrq_el0" : "=r"(freq));
+
+    /* 2. Calculate the number of ticks for */
+    reload_ticks = (freq * (uint64_t)interval_ms) / 1000ULL;
+    
+    /* 3. Write countdown value */
+    asm volatile("msr cntp_tval_el0, %0" :: "r"(reload_ticks));
+
+    /* 4. Enable the timer and unmask its interrupt */
+    asm volatile("msr cntp_ctl_el0, %0" :: "r"((uint64_t)1));
+
+    /* 5. Enable INTID 30 in the GIC to signal CPU */
+    gic_enable_irq(TIMER_IRQ);
+    }
+
+void timer_tick(void)
+    {
+    tick_count++;
+
+    /* Print a simple tick message */
+    kprint("tick #");
+
+    /* Quick inline decimal print for small numbers */
+    uint64_t n = tick_count;
+    char buf[20];
+    int i = 0;
+    if( n == 0 )
+        {
+        buf[ i++ ] = '0';
+        }
+    else 
+        {
+        while( n > 0 )
+            {
+            buf[ i++ ]= '0' + (n % 10 );
+            n /= 10;
+            }
+
+        /* rerverse */
+        for( int l = 0, r = i - 1; l < r; l++, r-- )
+            {
+            char t = buf[ l ];
+            buf[ l ] = buf[ r ];
+            buf[ r ] = t;
+            }
+        }
+    
+    buf[ i ] = '\0';
+    kprint(buf);
+    kprint("\n");
+
+    /* Re-arm: write down countdown so timer fires again */
+    asm volatile("msr cntp_tval_el0, %0" :: "r"(reload_ticks));
+    }
+
+uint64_t timer_get_ticks(void)
+    {
+    return tick_count;
+    }

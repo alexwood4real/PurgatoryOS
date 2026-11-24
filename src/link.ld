@@ -12,6 +12,7 @@ SECTIONS {
     */
     .text : {
         KEEP(*(.text.boot))
+        KEEP(*(.text.vectors))
         *(.text .text.*)
     }
 
