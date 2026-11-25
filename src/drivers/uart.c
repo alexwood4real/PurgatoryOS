@@ -50,3 +50,20 @@ void kprint(const char *s)
     {
     uart_puts(s);
     }
+
+void kprint_ptr(void *ptr)
+    {
+    uintptr_t val = (uintptr_t)ptr;
+    char buf[19]; /* 0x + 16 hex digits + \0 */
+    buf[0] = '0'; buf[1] = 'x';
+
+    for(int i = 15; i >= 0; i--)
+        {
+        int nibble = val & 0xF;
+        buf[2 + i] = nibble < 10 ? '0' + nibble : 'a' + nibble - 10;
+        val >>= 4;
+        }
+    
+    buf[18] = '\0';
+    kprint(buf);
+    }
