@@ -4,11 +4,22 @@
 #include <stddef.h>
 #include <stdint.h>
 
+/* Block metadata holder */
+typedef struct block_header
+    {
+    size_t               size;       /* payload bytes w/out header */
+    int                  is_free;    /* 1 = available for reuse */
+    struct block_header *next;       /* next block in linked list */
+    } block_header_t;
+
 /* Align a size up to the nearest multiple of 'align' */
 #define ALIGN_UP(n, align) (((size_t)(n) + (align) - 1) & ~((size_t)(align) - 1))
 
 /* Minimum heap alignment */
 #define HEAP_ALIGN 8
+
+/* Payload size with header aligned */
+#define HEADER_SIZE ALIGN_UP(sizeof(block_header_t), HEAP_ALIGN)
 
 /* Must be called once from main before any kmalloc */
 void heap_init(void);
